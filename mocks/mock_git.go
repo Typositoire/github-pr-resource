@@ -92,3 +92,15 @@ func (m *MockGit) RevParse(arg0 string) (string, error) {
 func (mr *MockGitMockRecorder) RevParse(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevParse", reflect.TypeOf((*MockGit)(nil).RevParse), arg0)
 }
+
+// SubmodulesInit mocks base method
+func (m *MockGit) SubmodulesInit() error {
+	ret := m.ctrl.Call(m, "SubmodulesInit")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SubmodulesInit indicates an expected call of SubmodulesInit
+func (mr *MockGitMockRecorder) SubmodulesInit() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmodulesInit", reflect.TypeOf((*MockGit)(nil).SubmodulesInit))
+}

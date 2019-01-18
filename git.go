@@ -19,6 +19,7 @@ type Git interface {
 	RevParse(string) (string, error)
 	Fetch(string, int) error
 	Merge(string) error
+	SubmodulesInit() error
 }
 
 // NewGitClient ...
@@ -117,6 +118,15 @@ func (g *GitClient) Merge(sha string) error {
 	if err := g.command("git", "merge", sha, "--no-stat").Run(); err != nil {
 		return fmt.Errorf("merge failed: %s", err)
 	}
+	return nil
+}
+
+// SubmodulesInit ...
+func (g *GitClient) SubmodulesInit() error {
+	if err := g.command("git", "submodule", "update", "--recursive", "--init", "--depth", "1").Run(); err != nil {
+		return fmt.Errorf("submodule init failed: %s", err)
+	}
+
 	return nil
 }
 

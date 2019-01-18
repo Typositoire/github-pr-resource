@@ -42,6 +42,13 @@ func Get(request GetRequest, github Github, git Git, outputDir string) (*GetResp
 		return nil, err
 	}
 
+	// Initialize submodules if set to true.
+	if request.Params.SubmodulesInit {
+		if err := git.SubmodulesInit(); err != nil {
+			return nil, err
+		}
+	}
+
 	// Create the metadata
 	var metadata Metadata
 	metadata.Add("pr", strconv.Itoa(pull.Number))
@@ -81,7 +88,8 @@ func Get(request GetRequest, github Github, git Git, outputDir string) (*GetResp
 
 // GetParameters ...
 type GetParameters struct {
-	SkipDownload bool `json:"skip_download"`
+	SubmodulesInit bool `json:"submodules_init"`
+	SkipDownload   bool `json:"skip_download"`
 }
 
 // GetRequest ...
