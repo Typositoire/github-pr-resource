@@ -14,13 +14,14 @@ import (
 )
 
 // Git interface for testing purposes.
-//go:generate mockgen -destination=mocks/mock_git.go -package=mocks github.com/telia-oss/github-pr-resource Git
+//go:generate counterfeiter -o fakes/fake_git.go . Git
 type Git interface {
 	Init(string) error
 	Pull(string, string) error
 	RevParse(string) (string, error)
 	Fetch(string, int) error
 	Merge(string) error
+	Rebase(string, string) error
 	GitCryptUnlock(string) error
 }
 
@@ -123,6 +124,17 @@ func (g *GitClient) Merge(sha string) error {
 	return nil
 }
 
+// Rebase ...
+func (g *GitClient) Rebase(baseRef string, headSha string) error {
+	if err := g.command("git", "checkout", headSha).Run(); err != nil {
+		return fmt.Errorf("checkout failed: %s", err)
+	}
+	if err := g.command("git", "rebase", baseRef).Run(); err != nil {
+		return fmt.Errorf("rebase failed: %s", err)
+	}
+	return nil
+}
+
 // GitCryptUnlock unlocks the repository using git-crypt
 func (g *GitClient) GitCryptUnlock(base64key string) error {
 	keyDir, err := ioutil.TempDir("", "")
@@ -135,7 +147,9 @@ func (g *GitClient) GitCryptUnlock(base64key string) error {
 		return fmt.Errorf("failed to decode git-crypt key")
 	}
 	keyPath := filepath.Join(keyDir, "git-crypt-key")
-	ioutil.WriteFile(keyPath, decodedKey, 600)
+	if err := ioutil.WriteFile(keyPath, decodedKey, 600); err != nil {
+		return fmt.Errorf("failed to write git-crypt key to file: %s", err)
+	}
 	if err := g.command("git-crypt", "unlock", keyPath).Run(); err != nil {
 		return fmt.Errorf("git-crypt unlock failed: %s", err)
 	}
