@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 // Check (business logic)
